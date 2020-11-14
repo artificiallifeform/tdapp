@@ -52,7 +52,7 @@ app.use("/api/goals", goalsRoute);
 app.use("/api/goalshistory", goalsHistoryRoute);
 
 app.use(express.static(__dirname + "/dist"));
-app.get("*", (req, res) => {
+app.get("*", (req, res, next) => {
   res.sendFile(path.resolve(__dirname, "dist", "index.html"));
 });
 

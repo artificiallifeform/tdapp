@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
 
     connection.query(insert_user, [username], (err, results, fields) => {
       if (err) throw err;
-      return res.status(201).json({ username: username, id: results.insertId });
+      res.status(201).json({ username: username, id: results.insertId });
     });
   });
 });

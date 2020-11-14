@@ -1,47 +1,6 @@
 const router = require("express").Router();
 const connection = require("../utils/sql_db");
 
-router.post("/", async (req, res) => {
-  // time_spent stores <seconds> value
-  // goal_time stores <seconds> vale
-  const {
-    user_id,
-    expiration,
-    time_spent,
-    created_at,
-    title,
-    goal_time,
-  } = req.body;
-
-  const insert_goal = (a, b, c, d, e, f) => {
-    const q =
-      "INSERT INTO goals(user_id, expiration, time_spent, created_at, title, goal_time) VALUES (?, FROM_UNIXTIME(?), ?, FROM_UNIXTIME(?), ?, ?)";
-
-    return new Promise((resolve, reject) => {
-      connection.query(q, [a, b, c, d, e, f], (err, results) => {
-        if (err) reject(err);
-        resolve(results.insertId);
-      });
-    });
-  };
-
-  try {
-    const goal_id = await insert_goal(
-      user_id,
-      expiration,
-      time_spent,
-      created_at,
-      title,
-      goal_time
-    );
-    return res.status(200).json({ goal_id });
-  } catch (err) {
-    return res
-      .status(500)
-      .send("Server Error. Something wrong with DB on inserting goal");
-  }
-});
-
 router.get("/", async (req, res) => {
   const get_goals = (user_id, date) => {
     const q =
@@ -78,26 +37,44 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/expire", async (req, res) => {
-  const { date, user_id } = req.body;
+router.post("/", async (req, res) => {
+  // time_spent stores <seconds> value
+  // goal_time stores <seconds> vale
+  const {
+    user_id,
+    expiration,
+    time_spent,
+    created_at,
+    title,
+    goal_time,
+  } = req.body;
 
-  const set_expired = (date, user_id) => {
+  const insert_goal = (a, b, c, d, e, f) => {
     const q =
-      "UPDATE goals SET expired=1 WHERE user_id=? AND expiration < FROM_UNIXTIME(?)";
+      "INSERT INTO goals(user_id, expiration, time_spent, created_at, title, goal_time) VALUES (?, FROM_UNIXTIME(?), ?, FROM_UNIXTIME(?), ?, ?)";
 
     return new Promise((resolve, reject) => {
-      connection.query(q, [user_id, date], (err, results) => {
+      connection.query(q, [a, b, c, d, e, f], (err, results) => {
         if (err) reject(err);
-        resolve(results);
+        resolve(results.insertId);
       });
     });
   };
 
   try {
-    await set_expired(date, user_id);
-    return res.status(202).send("Updated Successfully");
-  } catch (error) {
-    return res.status(500).send("Error while set expired on login");
+    const goal_id = await insert_goal(
+      user_id,
+      expiration,
+      time_spent,
+      created_at,
+      title,
+      goal_time
+    );
+    res.status(200).json({ goal_id });
+  } catch (err) {
+    res
+      .status(500)
+      .send("Server Error. Something wrong with DB on inserting goal");
   }
 });
 
@@ -122,6 +99,29 @@ router.delete("/", async (req, res) => {
     res
       .status(500)
       .send("Server Error. Something went wrong deleting the goal");
+  }
+});
+
+router.post("/expire", async (req, res) => {
+  const { date, user_id } = req.body;
+
+  const set_expired = (date, user_id) => {
+    const q =
+      "UPDATE goals SET expired=1 WHERE user_id=? AND expiration < FROM_UNIXTIME(?)";
+
+    return new Promise((resolve, reject) => {
+      connection.query(q, [user_id, date], (err, results) => {
+        if (err) reject(err);
+        resolve(results);
+      });
+    });
+  };
+
+  try {
+    await set_expired(date, user_id);
+    res.status(202).send("Updated Successfully");
+  } catch (error) {
+    res.status(500).send("Error while set expired on login");
   }
 });
 

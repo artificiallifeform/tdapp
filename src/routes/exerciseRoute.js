@@ -125,15 +125,15 @@ router.post("/", async (req, res) => {
 
     await update_exercise(found_exercise[0].id, title, seconds, last_update);
     // Returns id. need to assing it to exercise instance
-    return res.status(201).json({
+    res.status(201).json({
       exercise_id: found_exercise[0].id,
     });
   } catch (err) {
-    return res.status(500).send("Server Error. Db Error on inserting exercise");
+    res.status(500).send("Server Error. Db Error on inserting exercise");
   }
 });
 
-router.get("/getexercise", async (req, res) => {
+router.get("/getexercise", async (req, res, next) => {
   const user_id = parseInt(req.query.user_id);
   const date = parseInt(req.query.date);
 
@@ -150,9 +150,9 @@ router.get("/getexercise", async (req, res) => {
 
   try {
     const exercises = await exercises_per_day(user_id, date);
-    return res.status(200).json({ exercises });
+    res.status(200).json({ exercises });
   } catch (err) {
-    return res
+    res
       .status(500)
       .send("Server Error. Db Error on Selecting Exercises Per Day");
   }
@@ -163,9 +163,9 @@ router.delete("/", async (req, res) => {
   const q = "DELETE FROM exercises WHERE id=?";
   connection.query(q, [exercise_id], (err, results) => {
     if (err) {
-      return res.status(500).send("Failed To Delete Resource");
+      res.status(500).send("Failed To Delete Resource");
     }
-    return res.status(204).send("Resource Deleted Successfully");
+    res.status(204).send("Resource Deleted Successfully");
   });
 });
 
@@ -190,11 +190,9 @@ router.get("/exercisetitles", async (req, res) => {
 
   try {
     const response = await get_titles(user_id, val);
-    return res.status(200).json({ titles: response });
+    res.status(200).json({ titles: response });
   } catch (error) {
-    return res
-      .status(500)
-      .send("Server Error. Something wrong with fetching titles");
+    res.status(500).send("Server Error. Something wrong with fetching titles");
   }
 });
 

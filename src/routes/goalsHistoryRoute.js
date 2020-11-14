@@ -17,9 +17,9 @@ router.get("/all", async (req, res) => {
 
   try {
     const results = await goals_exercise_list(user_id);
-    return res.json(results);
+    res.status(200).json(results);
   } catch (error) {
-    return res.status(500).send("Error in fetching list of exercises");
+    res.status(500).send("Error in fetching list of exercises");
   }
 });
 
@@ -38,9 +38,9 @@ router.get("/total", async (req, res) => {
   };
   try {
     const goals_length = await total_goals(user_id);
-    return res.status(200).json(goals_length[0].length);
+    res.status(200).json(goals_length[0].length);
   } catch (error) {
-    res.stays(500).send("Error in fetching goals amount > 30 days");
+    res.status(500).send("Error in fetching goals amount > 30 days");
   }
 });
 
@@ -63,7 +63,7 @@ router.get("/:offset", async (req, res) => {
 
   try {
     const goals_per_page = await get_goals_page(offset, user_id);
-    return res.status(200).json(goals_per_page);
+    res.status(200).json(goals_per_page);
   } catch (err) {
     res.status(500).send("Server Error while fetching goal history page");
   }
@@ -95,7 +95,7 @@ router.get("/", async (req, res) => {
 
   try {
     const goals = await fetchGoals(user_id, term, spec);
-    return res.status(200).json(goals);
+    res.status(200).json(goals);
   } catch (error) {
     res.status(500).send("Something went wrong in fetching Goals History");
   }

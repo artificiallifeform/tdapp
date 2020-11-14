@@ -2,29 +2,6 @@ const router = require("express").Router();
 
 const connection = require("../utils/sql_db");
 
-router.get("/exercises", async (req, res) => {
-  const user_id = parseInt(req.query.user_id);
-  const q =
-    "SELECT title FROM exercises WHERE user_id=? GROUP BY title ORDER BY title";
-
-  const get_exercises = (user_id) => {
-    return new Promise((resolve, reject) => {
-      connection.query(q, [user_id], (err, results) => {
-        if (err) reject(err);
-        resolve(results);
-      });
-    });
-  };
-
-  try {
-    const response = await get_exercises(user_id);
-    return res.status(200).json({ exercises: response });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send("Server Error. Failed fetch user's exercises");
-  }
-});
-
 router.get("/", async (req, res) => {
   const user_id = parseInt(req.query.user_id);
   const title = req.query.title;
@@ -65,14 +42,37 @@ router.get("/", async (req, res) => {
   try {
     const response_stat = await get_statistics(user_id, title);
     const response_time = await get_total(user_id, title);
-    return res
+    res
       .status(200)
       .json({ stats: response_stat, total_time: response_time[0] });
   } catch (error) {
     console.log(error);
-    return res
+    res
       .status(500)
       .send("Server Error. Something went wrong with fetching time intervals");
+  }
+});
+
+router.get("/exercises", async (req, res) => {
+  const user_id = parseInt(req.query.user_id);
+  const q =
+    "SELECT title FROM exercises WHERE user_id=? GROUP BY title ORDER BY title";
+
+  const get_exercises = (user_id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(q, [user_id], (err, results) => {
+        if (err) reject(err);
+        resolve(results);
+      });
+    });
+  };
+
+  try {
+    const response = await get_exercises(user_id);
+    res.status(200).json({ exercises: response });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Server Error. Failed fetch user's exercises");
   }
 });
 
